@@ -1,6 +1,7 @@
 {
-  "name": "@aieditor/tiptap-markdown",
-  "version": "0.8.11",
+  "name": "@codeflex/tiptap-markdown",
+  "author": "yangfuhai",
+  "version": "0.8.10",
   "description": "Edit markdown content in tiptap editor.",
   "scripts": {
     "test": "vitest",
@@ -11,9 +12,6 @@
     "preversion": "npm run build",
     "update:tiptap": "update-by-scope @tiptap"
   },
-  "workspaces": [
-    "example"
-  ],
   "main": "dist/tiptap-markdown.umd.js",
   "module": "dist/tiptap-markdown.es.js",
   "type": "module",
@@ -36,13 +34,16 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aguingand/tiptap-markdown.git"
+    "url": "https://github.com/aieditor-team/tiptap-markdown"
   },
   "bugs": {
-    "url": "https://github.com/aguingand/tiptap-markdown/issues"
+    "url": "https://github.com/aieditor-team/tiptap-markdown"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "types": "index.d.ts",
-  "author": "Antoine Guingand",
   "license": "MIT",
   "dependencies": {
     "@types/markdown-it": "^13.0.7",
