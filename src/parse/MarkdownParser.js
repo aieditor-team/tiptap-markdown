@@ -1,6 +1,6 @@
 import markdownit from "markdown-it";
-import { elementFromString, extractElement, unwrapElement } from "../util/dom";
-import { getMarkdownSpec } from "../util/extensions";
+import {elementFromString, extractElement, unwrapElement} from "../util/dom";
+import {getMarkdownSpec} from "../util/extensions";
 
 export class MarkdownParser {
     /**
@@ -12,7 +12,7 @@ export class MarkdownParser {
      */
     md = null;
 
-    constructor(editor, { html, linkify, breaks }) {
+    constructor(editor, {html, linkify, breaks}) {
         this.editor = editor;
         this.md = this.withPatchedRenderer(markdownit({
             html,
@@ -21,20 +21,31 @@ export class MarkdownParser {
         }));
     }
 
-    parse(content, { inline } = {}) {
-        if(typeof content === 'string') {
-            this.editor.extensionManager.extensions.forEach(extension =>
-                getMarkdownSpec(extension)?.parse?.setup?.call({ editor:this.editor, options:extension.options }, this.md)
-            );
+    parse(content, {inline} = {}) {
+        if (typeof content === 'string') {
+            let renderedHTML;
+            if (content.trim().startsWith("<") && content.trim().endsWith(">")) {
+                renderedHTML = content;
+            } else {
+                this.editor.extensionManager.extensions.forEach(extension =>
+                    getMarkdownSpec(extension)?.parse?.setup?.call({
+                        editor: this.editor,
+                        options: extension.options
+                    }, this.md)
+                );
+                renderedHTML = this.md.render(content);
+            }
 
-            const renderedHTML = this.md.render(content);
             const element = elementFromString(renderedHTML);
 
             this.editor.extensionManager.extensions.forEach(extension =>
-                getMarkdownSpec(extension)?.parse?.updateDOM?.call({ editor:this.editor, options:extension.options }, element)
+                getMarkdownSpec(extension)?.parse?.updateDOM?.call({
+                    editor: this.editor,
+                    options: extension.options
+                }, element)
             );
 
-            this.normalizeDOM(element, { inline, content });
+            this.normalizeDOM(element, {inline, content});
 
             return element.innerHTML;
         }
@@ -42,17 +53,17 @@ export class MarkdownParser {
         return content;
     }
 
-    normalizeDOM(node, { inline, content }) {
+    normalizeDOM(node, {inline, content}) {
         this.normalizeBlocks(node);
 
         // remove all \n appended by markdown-it
         node.querySelectorAll('*').forEach(el => {
-            if(el.nextSibling?.nodeType === Node.TEXT_NODE && !el.closest('pre')) {
+            if (el.nextSibling?.nodeType === Node.TEXT_NODE && !el.closest('pre')) {
                 el.nextSibling.textContent = el.nextSibling.textContent.replace(/^\n/, '');
             }
         });
 
-        if(inline) {
+        if (inline) {
             this.normalizeInline(node, content);
         }
 
@@ -69,27 +80,27 @@ export class MarkdownParser {
             .filter(Boolean)
             .join(',');
 
-        if(!selector) {
+        if (!selector) {
             return;
         }
 
         [...node.querySelectorAll(selector)].forEach(el => {
-            if(el.parentElement.matches('p')) {
+            if (el.parentElement.matches('p')) {
                 extractElement(el);
             }
         });
     }
 
     normalizeInline(node, content) {
-        if(node.firstElementChild?.matches('p')) {
+        if (node.firstElementChild?.matches('p')) {
             const firstParagraph = node.firstElementChild;
-            const { nextElementSibling } = firstParagraph;
+            const {nextElementSibling} = firstParagraph;
             const startSpaces = content.match(/^\s+/)?.[0] ?? '';
             const endSpaces = !nextElementSibling
                 ? content.match(/\s+$/)?.[0] ?? ''
                 : '';
 
-            if(content.match(/^\n\n/)) {
+            if (content.match(/^\n\n/)) {
                 firstParagraph.innerHTML = `${firstParagraph.innerHTML}${endSpaces}`;
                 return;
             }
@@ -106,10 +117,10 @@ export class MarkdownParser {
     withPatchedRenderer(md) {
         const withoutNewLine = (renderer) => (...args) => {
             const rendered = renderer(...args);
-            if(rendered === '\n') {
+            if (rendered === '\n') {
                 return rendered; // keep soft breaks
             }
-            if(rendered[rendered.length - 1] === '\n') {
+            if (rendered[rendered.length - 1] === '\n') {
                 return rendered.slice(0, -1);
             }
             return rendered;
