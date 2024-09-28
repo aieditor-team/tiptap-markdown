@@ -1,7 +1,7 @@
 {
   "name": "@codeflex/tiptap-markdown",
   "author": "yangfuhai",
-  "version": "0.8.10",
+  "version": "0.8.11",
   "description": "Edit markdown content in tiptap editor.",
   "scripts": {
     "test": "vitest",
